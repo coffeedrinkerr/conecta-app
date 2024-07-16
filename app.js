@@ -36,6 +36,7 @@ app.use('/auth', require('./routes/authRoutes'));
 app.use('/', require('./routes/homeRoutes'));
 app.use('/client', require('./routes/clientRoutes'));
 app.use('/professional', require('./routes/professionalRoutes'));
+app.use('/profile', require('./routes/profileRoutes'));
 
 // Sincronizar base de datos y arrancar servidor
 sessionStore.sync().then(() => {
