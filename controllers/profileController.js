@@ -4,6 +4,10 @@ const User = require('../models/User');
 exports.profileForm = async (req, res) => {
     try {
         const user = await User.findByPk(req.session.userId);
+        if (!user) {
+            return res.status(404).send('Usuario no encontrado');
+        }
+        console.log('User data:', user); // Imprime el objeto user en la consola
         res.render('profile', { user });
     } catch (error) {
         console.error(error);

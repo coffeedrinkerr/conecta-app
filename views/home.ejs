@@ -10,20 +10,21 @@
     <header>
         <h1>
             <a href="/" id="home-link">
-                <img width="20%" src="/images/conectaLogo.jpg" alt="Conecta Logo">
+                <img width="20%" src="/images/ConectaLogo.jpg" alt="Conecta Logo">
             </a>
         </h1>
     </header>
     <div class="navbar">
-        <button id="profile-button" onclick="window.location.href='/profile'">Perfil</button>
-        <button id="inscripcion-button" onclick="window.location.href='/inscription'">Inscribirse como Empresa</button>
-        <button id="calificar-button" onclick="window.location.href='/rate'">Calificar Empresa</button>
-        <button id="solicitar-servicios-button" onclick="window.location.href='/services'">Servicios</button>
-        <button id="ver-calificacion-button" onclick="window.location.href='/rating'">Puntuación de Empresas</button>
-        <button id="ver-estadisticas-button" onclick="window.location.href='/requests'">Solicitudes</button>
-        <button id="cerrar-sesion-button" onclick="window.location.href='/auth/logout'">Cerrar Sesión</button>
+        <button id="profile-button" onclick="loadContent('/profile', 'Perfil')">Perfil</button>
+        <button id="inscripcion-button" onclick="loadContent(inscripcionContent, 'Inscripción')">Inscribirse como Empresa</button>
+        <button id="calificar-button" onclick="loadContent(calificarContent, 'Calificación')">Calificar Empresa</button>
+        <button id="solicitar-servicios-button" onclick="loadContent(solicitarServiciosContent, 'Servicios')">Servicios</button>
+        <button id="ver-calificacion-button" onclick="loadContent(verCalificacionContent, 'Calificaciones')">Puntuación de Empresas</button>
+        <button id="ver-estadisticas-button" onclick="loadContent(verEstadisticasContent, 'Estadísticas')">Solicitudes</button>
+        <button id="cerrar-sesion-button" onclick="cerrarSesion()">Cerrar Sesión</button>
     </div>
     <div class="content" id="content">
+        <!-- El contenido dinámico se cargará aquí -->
         <h2>Bienvenido a Conecta Servicios</h2>
         <p>Tu plataforma confiable y eficiente que te conecta con profesionales de diversos servicios con clientes cerca de ti, facilitándote transacciones seguras y eficientes.</p>
         <p>Seleccione una opción de la barra de navegación.</p>
