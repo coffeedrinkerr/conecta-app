@@ -91,9 +91,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 <div id="payment-section">
                     <h3>Pago</h3>
-                    <input type="text" placeholder="Nombre en la Tarjeta">
-                    <input type="text" placeholder="Número de la Tarjeta">
-                    <button onclick="confirmPayment()">Confirmar Pago</button>
+                    <div id="paypal-button-container"></div>
                 </div>
                 <div id="modify-cancel">
                     <button onclick="modifyReservation()">Modificar Reserva</button>
@@ -157,10 +155,10 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const professionals = [
-        { id: 1, name: 'Plomeria Pérez', category: 'Plomería', rating: 5, services: 'Reparaciones de tuberías, Instalaciones de sanitarios', details: 'Juan tiene más de 10 años de experiencia en plomería. Ha trabajado en múltiples proyectos residenciales y comerciales.' },
-        { id: 2, name: 'Elecronica García', category: 'Electricidad', rating: 4, services: 'Instalaciones eléctricas, Reparaciones de cortocircuitos', details: 'María es una electricista certificada con 8 años de experiencia. Es conocida por su atención al detalle y seguridad en el trabajo.' },
-        { id: 3, name: 'Carpinteria López', category: 'Carpintería', rating: 5, services: 'Fabricación de muebles, Reparaciones de puertas', details: 'Carlos es un maestro carpintero con más de 15 años de experiencia. Sus trabajos son altamente valorados por su precisión y calidad.' },
-        { id: 4, name: 'Albañileria Manuel', category: 'Albañileria', rating: 4, services: 'Pisos paredes losas cercas de concreto para todo publico', details: 'Julian es un maestro de obras de construccion con más de 17 años de experiencia. Sus trabajos son altamente valorados y garantizados por su precisión y calidad.' },
+        { id: 1, name: 'Plomeria Pérez', category: 'Plomería', rating: 5, services: 'Reparaciones de tuberías, Instalaciones de sanitarios', details: 'Juan tiene más de 10 años de experiencia en plomería. Ha trabajado en múltiples proyectos residenciales y comerciales.', price: 100 },
+        { id: 2, name: 'Elecronica García', category: 'Electricidad', rating: 4, services: 'Instalaciones eléctricas, Reparaciones de cortocircuitos', details: 'María es una electricista certificada con 8 años de experiencia. Es conocida por su atención al detalle y seguridad en el trabajo.', price: 120 },
+        { id: 3, name: 'Carpinteria López', category: 'Carpintería', rating: 5, services: 'Fabricación de muebles, Reparaciones de puertas', details: 'Carlos es un maestro carpintero con más de 15 años de experiencia. Sus trabajos son altamente valorados por su precisión y calidad.', price: 150 },
+        { id: 4, name: 'Albañileria Manuel', category: 'Albañileria', rating: 4, services: 'Pisos paredes losas cercas de concreto para todo publico', details: 'Julian es un maestro de obras de construccion con más de 17 años de experiencia. Sus trabajos son altamente valorados y garantizados por su precisión y calidad.', price: 200 },
     ];
 
     window.searchServices = function searchServices() {
@@ -208,8 +206,71 @@ document.addEventListener('DOMContentLoaded', () => {
             <p><strong>Calificación:</strong> ${professional.rating} Estrellas</p>
             <p><strong>Servicios:</strong> ${professional.services}</p>
             <p><strong>Detalles:</strong> ${professional.details}</p>
+            <p><strong>Precio:</strong> $${professional.price}</p>
+            <button onclick="selectService(${professional.id})">Seleccionar Servicio</button>
         `;
         profileDiv.style.display = 'block';
+    }
+
+    window.selectService = function selectService(id) {
+        const professional = professionals.find(pro => pro.id === id);
+        document.getElementById('confirmationMessage').innerHTML = `
+            <strong>Servicio seleccionado:</strong><br>
+            <strong>Empresa:</strong> ${professional.name}<br>
+            <strong>Precio:</strong> $${professional.price}
+        `;
+        document.getElementById('confirmation').style.display = 'block';
+        document.getElementById('reservationForm').style.display = 'none';
+        document.getElementById('modify-cancel').style.display = 'block';
+        
+        // Render PayPal button with selected service price
+        paypal.Buttons({
+            createOrder() {
+                return fetch("http://localhost:3000/payment/create", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        price: professional.price,
+                        description: professional.services
+                    })
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error(text);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(order => order.id);
+            },
+            onApprove(data) {
+                return fetch("http://localhost:3000/payment/execute", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({
+                        orderID: data.orderID
+                    })
+                }).then(response => {
+                    if (response.ok) {
+                        alert('Pago realizado con éxito');
+                        window.location.href = "http://localhost:3000/success";
+                    } else {
+                        return response.text().then(text => {
+                            throw new Error(text);
+                        });
+                    }
+                });
+            },
+            onError(err) {
+                console.error('Error en el proceso de pago:', err);
+                alert('Error en el proceso de pago');
+            }
+        }).render('#paypal-button-container');
     }
 
     window.reserveService = function reserveService() {
