@@ -1,0 +1,444 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App de Multiservicios</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 50px auto;
+            padding: 0;
+            text-align: center;
+        }
+
+        header {
+            background-color: #007BFF;
+            color: white;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        main {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        h1, h2 {
+            margin: 0 0 1rem 0;
+            text-align: center;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+            text-align: center;
+        }
+
+        li {
+            background-color: white;
+            margin: 0.5rem 0;
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            text-align: center;
+        }
+
+        li:hover {
+            background-color: #e0e0e0;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            width: 55%;
+            text-align: center;
+        }
+
+        label {
+            margin: 0.5rem 0 0.25rem 0;
+            text-align: center;
+        }
+
+        input, select, button, textarea {
+            padding: 0.5rem;
+            margin: 0.25rem 0 1rem 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        button {
+            padding: 0.5rem;
+            cursor: pointer;
+            margin: auto;
+            background-color: #3cbacdda;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>App de Multiservicios</h1>
+    </header>
+    <main>
+        <button id="inscripcion-button">Inscribirse como Empresa</button>
+        <button id="calificar-button">Calificar Empresa</button>
+        <button id="solicitar-servicios-button">Solicitar Servicios</button>
+        <button id="ver-calificacion-button">Ver Calificación de Empresa</button>
+        <button id="ver-estadisticas-button">Ver Estadísticas de Solicitudes</button>
+
+        <section id="servicios"> <br>
+            <h2>Servicios Disponibles</h2>
+            <ul id="lista-servicios">
+                <!-- Servicios se agregarán aquí dinámicamente -->
+            </ul>
+        </section>
+
+        <section id="empresas" class="hidden">
+            <h2>Empresas Disponibles</h2>
+            <ul id="lista-empresas">
+                <!-- Empresas se agregarán aquí dinámicamente -->
+            </ul>
+        </section>
+
+        <section id="historial" class="hidden">
+            <h2>Historial de Calificaciones</h2>
+            <ul id="historial-lista">
+                <!-- Calificaciones se agregarán aquí dinámicamente -->
+            </ul>
+        </section>
+
+        <section id="inscripcion-empresa" class="hidden">
+            <h2>Inscripción de Empresa</h2>
+            <form id="form-inscripcion">
+                <label for="nombre-empresa">Nombre de la Empresa:</label>
+                <input type="text" id="nombre-empresa" name="nombre-empresa" required>
+                <label for="servicio-empresa">Servicio Ofrecido:</label>
+                <input type="text" id="servicio-empresa" name="servicio-empresa" required>
+                <button type="submit">Registrar Empresa</button>
+            </form>
+        </section>
+
+        <section id="calificar-empresa" class="hidden">
+            <h2>Calificación de Empresa</h2>
+            <form id="form-calificacion">
+                <label for="servicio-calificacion">Servicio:</label>
+                <select id="servicio-calificacion" name="servicio-calificacion" required>
+                    <!-- Servicios se agregarán aquí dinámicamente -->
+                </select>
+                <label for="empresa-calificacion">Empresa:</label>
+                <select id="empresa-calificacion" name="empresa-calificacion" required>
+                    <!-- Empresas se agregarán aquí dinámicamente -->
+                </select>
+                <label for="calificacion">Calificación (1-5):</label>
+                <input type="number" id="calificacion" name="calificacion" min="1" max="5" required>
+                <label for="comentarios">Comentarios:</label>
+                <textarea id="comentarios" name="comentarios" rows="4"></textarea>
+                <button type="submit">Enviar Calificación</button>
+            </form>
+        </section>
+
+        <section id="solicitar-servicio" class="hidden">
+            <h2>Solicitar Servicio</h2>
+            <form id="form-solicitud">
+                <label for="servicio">Servicio:</label>
+                <select id="servicio" name="servicio" required>
+                    <!-- Servicios se agregarán aquí dinámicamente -->
+                </select>
+                <label for="empresa">Empresa:</label>
+                <select id="empresa" name="empresa" required>
+                    <!-- Empresas se agregarán aquí dinámicamente -->
+                </select>
+                <label for="nombre">Nombre:</label>
+                <input type="text" id="nombre" name="nombre" required>
+                <label for="email">Correo Electrónico:</label>
+                <input type="email" id="email" name="email" required>
+                <button type="submit">Solicitar Servicio</button>
+            </form>
+            <div id="confirmacion" class="hidden">
+                <h3>Confirmación de Solicitud:</h3>
+                <p>Nombre: <span id="nombre-confirmacion"></span></p>
+                <p>Servicio: <span id="servicio-confirmacion"></span></p>
+                <p>Empresa: <span id="empresa-confirmacion"></span></p>
+                <p>Correo Electrónico: <span id="email-confirmacion"></span></p>
+            </div>
+        </section>
+
+        <section id="estadisticas" class="hidden">
+            <h2>Estadísticas de Solicitudes</h2>
+            <ul id="estadisticas-lista">
+                <!-- Estadísticas se agregarán aquí dinámicamente -->
+            </ul>
+        </section>
+    </main>
+
+    <script>
+        const servicios = {};
+        const calificaciones = {};
+        const solicitudes = [];
+
+        document.getElementById('inscripcion-button').addEventListener('click', function() {
+            toggleSection('inscripcion-empresa');
+        });
+
+        document.getElementById('calificar-button').addEventListener('click', function() {
+            toggleSection('calificar-empresa');
+            actualizarSelectServiciosCalificacion();
+        });
+
+        document.getElementById('solicitar-servicios-button').addEventListener('click', function() {
+            toggleSection('solicitar-servicio');
+            actualizarSelectServiciosSolicitud();
+        });
+
+        document.getElementById('ver-calificacion-button').addEventListener('click', function() {
+            toggleSection('historial');
+            mostrarHistorialCalificaciones();
+        });
+
+        document.getElementById('ver-estadisticas-button').addEventListener('click', function() {
+            toggleSection('estadisticas');
+            mostrarEstadisticas();
+        });
+
+        document.getElementById('form-inscripcion').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const nombreEmpresa = document.getElementById('nombre-empresa').value;
+            const servicioEmpresa = document.getElementById('servicio-empresa').value.toLowerCase().replace(/ /g, '-');
+            
+            if (servicios[servicioEmpresa]) {
+                servicios[servicioEmpresa].push(nombreEmpresa);
+            } else {
+                servicios[servicioEmpresa] = [nombreEmpresa];
+            }
+
+            actualizarListaServicios();
+            actualizarSelectServiciosSolicitud();
+            actualizarSelectServiciosCalificacion();
+            actualizarSelectEmpresas('empresa-calificacion', servicioEmpresa);
+
+            document.getElementById('form-inscripcion').reset();
+            toggleSection('inscripcion-empresa');
+        });
+
+        document.getElementById('form-calificacion').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const servicio = document.getElementById('servicio-calificacion').value;
+            const empresa = document.getElementById('empresa-calificacion').value;
+            const calificacion = document.getElementById('calificacion').value;
+            const comentarios = document.getElementById('comentarios').value;
+            
+            if (!calificaciones[servicio]) {
+                calificaciones[servicio] = {};
+            }
+            if (!calificaciones[servicio][empresa]) {
+                calificaciones[servicio][empresa] = [];
+            }
+            calificaciones[servicio][empresa].push({ calificacion, comentarios });
+
+            document.getElementById('form-calificacion').reset();
+            toggleSection('calificar-empresa');
+        });
+
+        document.getElementById('form-solicitud').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const nombre = document.getElementById('nombre').value;
+            const email = document.getElementById('email').value;
+            const servicio = document.getElementById('servicio').value;
+            const empresa = document.getElementById('empresa').value;
+
+            const solicitud = { nombre, email, servicio, empresa };
+            solicitudes.push(solicitud);
+            
+            document.getElementById('nombre-confirmacion').innerText = nombre;
+            document.getElementById('servicio-confirmacion').innerText = servicio;
+            document.getElementById('empresa-confirmacion').innerText = empresa;
+            document.getElementById('email-confirmacion').innerText = email;
+            document.getElementById('confirmacion').style.display = 'block';
+            
+            document.getElementById('form-solicitud').reset();
+        });
+
+        function actualizarListaServicios() {
+            const listaServicios = document.getElementById('lista-servicios');
+            listaServicios.innerHTML = '';
+
+            for (const servicio in servicios) {
+                if (servicios.hasOwnProperty(servicio)) {
+                    const servicioItem = document.createElement('li');
+                    servicioItem.innerText = servicio.charAt(0).toUpperCase() + servicio.slice(1);
+                    servicioItem.setAttribute('data-servicio', servicio);
+                    listaServicios.appendChild(servicioItem);
+                }
+            }
+        }
+
+        function actualizarSelectServiciosSolicitud() {
+            const selectServicios = document.getElementById('servicio');
+            selectServicios.innerHTML = '';
+
+            for (const servicio in servicios) {
+                if (servicios.hasOwnProperty(servicio)) {
+                    const servicioOpcion = document.createElement('option');
+                    servicioOpcion.value = servicio;
+                    servicioOpcion.innerText = servicio.charAt(0).toUpperCase() + servicio.slice(1);
+                    selectServicios.appendChild(servicioOpcion);
+                }
+            }
+
+            selectServicios.addEventListener('change', function() {
+                const selectedService = selectServicios.value;
+                const selectEmpresas = document.getElementById('empresa');
+                selectEmpresas.innerHTML = '';
+                servicios[selectedService].forEach(empresa => {
+                    const option = document.createElement('option');
+                    option.value = empresa;
+                    option.innerText = empresa;
+                    selectEmpresas.appendChild(option);
+                });
+            });
+
+            const initialService = Object.keys(servicios)[0];
+            const initialEmpresas = servicios[initialService];
+            const selectEmpresas = document.getElementById('empresa');
+            selectEmpresas.innerHTML = '';
+            initialEmpresas.forEach(empresa => {
+                const option = document.createElement('option');
+                option.value = empresa;
+                option.innerText = empresa;
+                selectEmpresas.appendChild(option);
+            });
+        }
+
+        function actualizarSelectServiciosCalificacion() {
+            const selectServicios = document.getElementById('servicio-calificacion');
+            selectServicios.innerHTML = '';
+
+            for (const servicio in servicios) {
+                if (servicios.hasOwnProperty(servicio)) {
+                    const servicioOpcion = document.createElement('option');
+                    servicioOpcion.value = servicio;
+                    servicioOpcion.innerText = servicio.charAt(0).toUpperCase() + servicio.slice(1);
+                    selectServicios.appendChild(servicioOpcion);
+                }
+            }
+
+            selectServicios.addEventListener('change', function() {
+                const selectedService = selectServicios.value;
+                const selectEmpresas = document.getElementById('empresa-calificacion');
+                selectEmpresas.innerHTML = '';
+                servicios[selectedService].forEach(empresa => {
+                    const option = document.createElement('option');
+                    option.value = empresa;
+                    option.innerText = empresa;
+                    selectEmpresas.appendChild(option);
+                });
+            });
+
+            const initialService = Object.keys(servicios)[0];
+            const initialEmpresas = servicios[initialService];
+            const selectEmpresas = document.getElementById('empresa-calificacion');
+            selectEmpresas.innerHTML = '';
+            initialEmpresas.forEach(empresa => {
+                const option = document.createElement('option');
+                option.value = empresa;
+                option.innerText = empresa;
+                selectEmpresas.appendChild(option);
+            });
+        }
+
+        function actualizarSelectEmpresas(selectId, servicio) {
+            const selectEmpresas = document.getElementById(selectId);
+            selectEmpresas.innerHTML = '';
+
+            if (servicios[servicio]) {
+                servicios[servicio].forEach(empresa => {
+                    const empresaOpcion = document.createElement('option');
+                    empresaOpcion.value = empresa;
+                    empresaOpcion.innerText = empresa;
+                    selectEmpresas.appendChild(empresaOpcion);
+                });
+            }
+        }
+
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            if (section.classList.contains('hidden')) {
+                section.classList.remove('hidden');
+            } else {
+                section.classList.add('hidden');
+            }
+        }
+
+        function mostrarHistorialCalificaciones() {
+            const historialLista = document.getElementById('historial-lista');
+            historialLista.innerHTML = '';
+
+            for (const servicio in calificaciones) {
+                if (calificaciones.hasOwnProperty(servicio)) {
+                    for (const empresa in calificaciones[servicio]) {
+                        if (calificaciones[servicio].hasOwnProperty(empresa)) {
+                            const calificacionesEmpresa = calificaciones[servicio][empresa];
+                            calificacionesEmpresa.forEach(calificacion => {
+                                const listItem = document.createElement('li');
+                                listItem.innerHTML = `<strong>Servicio:</strong> ${servicio}<br><strong>Empresa:</strong> ${empresa}<br><strong>Calificación:</strong> ${calificacion.calificacion}<br><strong>Comentarios:</strong> ${calificacion.comentarios}<br>`;
+                                historialLista.appendChild(listItem);
+                            });
+                        }
+                    }
+                }
+            }
+        }
+
+        function mostrarEstadisticas() {
+            const estadisticasLista = document.getElementById('estadisticas-lista');
+            estadisticasLista.innerHTML = '';
+
+            const serviciosSolicitados = {};
+            const empresasSolicitadas = {};
+
+            solicitudes.forEach(solicitud => {
+                if (serviciosSolicitados[solicitud.servicio]) {
+                    serviciosSolicitados[solicitud.servicio]++;
+                } else {
+                    serviciosSolicitados[solicitud.servicio] = 1;
+                }
+
+                if (empresasSolicitadas[solicitud.empresa]) {
+                    empresasSolicitadas[solicitud.empresa]++;
+                } else {
+                    empresasSolicitadas[solicitud.empresa] = 1;
+                }
+            });
+
+            for (const servicio in serviciosSolicitados) {
+                if (serviciosSolicitados.hasOwnProperty(servicio)) {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `<strong>Servicio:</strong> ${servicio}<br><strong>Solicitudes:</strong> ${serviciosSolicitados[servicio]}<br>`;
+                    estadisticasLista.appendChild(listItem);
+                }
+            }
+
+            for (const empresa in empresasSolicitadas) {
+                if (empresasSolicitadas.hasOwnProperty(empresa)) {
+                    const listItem = document.createElement('li');
+                    listItem.innerHTML = `<strong>Empresa:</strong> ${empresa}<br><strong>Solicitudes:</strong> ${empresasSolicitadas[empresa]}<br>`;
+                    estadisticasLista.appendChild(listItem);
+                }
+            }
+        }
+
+        actualizarListaServicios();
+    </script>
+</body>
+</html>
