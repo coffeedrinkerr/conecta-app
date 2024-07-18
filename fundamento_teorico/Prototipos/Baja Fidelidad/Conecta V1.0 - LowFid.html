@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App de Multiservicio</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f0f0f0;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+        }
+
+        .nav-btn {
+            padding: 15px 20px;
+            margin: 10px;
+            font-size: 18px;
+            color: #fff;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .nav-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .screen {
+            display: none;
+        }
+
+        .screen.active {
+            display: block;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            padding: 10px 0;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        input, textarea, button, select {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        .edit-btn, .delete-btn {
+            padding: 5px 10px;
+            font-size: 14px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
+
+        .edit-btn {
+            background-color: #ffc107;
+            border: none;
+            color: white;
+            border-radius: 3px;
+        }
+
+        .delete-btn {
+            background-color: #dc3545;
+            border: none;
+            color: white;
+            border-radius: 3px;
+        }
+
+        .history {
+            margin-top: 20px;
+        }
+
+        .history h3 {
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div id="homeScreen" class="screen active">
+            <h2>Multiservicio</h2>
+            <button class="nav-btn" onclick="showScreen('servicesScreen')">Servicios</button>
+            <button class="nav-btn" onclick="showScreen('registerScreen')">Inscripción de Empresas</button>
+            <button class="nav-btn" onclick="showScreen('adminScreen')">Administración</button>
+            <button class="nav-btn" onclick="showScreen('requestServiceScreen')">Solicitar Servicio</button>
+        </div>
+
+        <div id="servicesScreen" class="screen">
+            <h2>Lista de Servicios</h2>
+            <ul id="servicesList">
+                <li>Servicio de plomería</li>
+                <li>Servicio de electricidad</li>
+                <li>Servicio de limpieza</li>
+                <li>Servicio de jardinería</li>
+            </ul>
+            <button class="nav-btn" onclick="showScreen('homeScreen')">Volver</button>
+        </div>
+
+        <div id="adminScreen" class="screen">
+            <h2>Administración</h2>
+            <textarea id="serviceInput" placeholder="Agregar un nuevo servicio"></textarea>
+            <button class="nav-btn" onclick="addService()">Agregar Servicio</button>
+            <ul id="adminServicesList">
+                <!-- Los servicios se mostrarán aquí con opciones de editar y eliminar -->
+            </ul>
+
+            <input type="text" id="companyInput" placeholder="Agregar una nueva empresa">
+            <button class="nav-btn" onclick="addCompany()">Agregar Empresa</button>
+            <ul id="adminCompaniesList">
+                <!-- Las empresas se mostrarán aquí con opciones de eliminar -->
+            </ul>
+
+            <div class="history">
+                <h3>Historial de Servicios Solicitados</h3>
+                <ul id="serviceHistoryList">
+                    <!-- El historial de servicios solicitados se mostrará aquí -->
+                </ul>
+            </div>
+
+            <button class="nav-btn" onclick="showScreen('homeScreen')">Volver</button>
+        </div>
+
+        <div id="registerScreen" class="screen">
+            <h2>Inscripción de Empresas</h2>
+            <input type="text" id="companyName" placeholder="Nombre de la Empresa">
+            <input type="text" id="companyService" placeholder="Servicio Ofrecido">
+            <textarea id="companyDetails" placeholder="Detalles de la Empresa"></textarea>
+            <button class="nav-btn" onclick="registerCompany()">Registrar Empresa</button>
+            <button class="nav-btn" onclick="showScreen('homeScreen')">Volver</button>
+        </div>
+
+        <div id="requestServiceScreen" class="screen">
+            <h2>Solicitar Servicio</h2>
+            <input type="text" id="customerName" placeholder="Nombre del Cliente">
+            <select id="customerService" onchange="filterCompanies()">
+                <option value="">Seleccione un servicio</option>
+                <!-- Los servicios dinámicamente cargados se agregarán aquí -->
+            </select>
+            <ul id="filteredCompaniesList">
+                <!-- Las empresas filtradas se mostrarán aquí -->
+            </ul>
+            <button class="nav-btn" onclick="requestService()">Solicitar</button>
+            <button class="nav-btn" onclick="showScreen('homeScreen')">Volver</button>
+        </div>
+    </div>
+
+    <script>
+        const services = ["Servicio de plomería", "Servicio de electricidad", "Servicio de limpieza", "Servicio de jardinería"];
+        const companies = [];
+
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function addService() {
+            const serviceInput = document.getElementById('serviceInput');
+            const service = serviceInput.value;
+            if (service) {
+                services.push(service);
+                updateServicesList();
+                serviceInput.value = '';
+            } else {
+                alert('Por favor, ingrese un servicio.');
+            }
+        }
+
+        function updateServicesList() {
+            const serviceList = document.getElementById('servicesList');
+            const adminServiceList = document.getElementById('adminServicesList');
+            const customerServiceSelect = document.getElementById('customerService');
+            
+            serviceList.innerHTML = '';
+            adminServiceList.innerHTML = '';
+            customerServiceSelect.innerHTML = '<option value="">Seleccione un servicio</option>';
+            
+            services.forEach(service => {
+                serviceList.innerHTML += `<li>${service}</li>`;
+                adminServiceList.innerHTML += `
+                    <li>
+                        ${service}
+                        <div>
+                            <button class="edit-btn" onclick="editService(this)">Editar</button>
+                            <button class="delete-btn" onclick="deleteService(this)">Eliminar</button>
+                        </div>
+                    </li>
+                `;
+                customerServiceSelect.innerHTML += `<option value="${service}">${service}</option>`;
+            });
+        }
+
+        function editService(button) {
+            const serviceItem = button.parentNode.parentNode;
+            const serviceText = serviceItem.firstChild.textContent.trim();
+            const newService = prompt('Editar Servicio:', serviceText);
+            if (newService) {
+                const index = services.indexOf(serviceText);
+                if (index !== -1) {
+                    services[index] = newService;
+                    updateServicesList();
+                }
+            }
+        }
+
+        function deleteService(button) {
+            const serviceItem = button.parentNode.parentNode;
+            const serviceText = serviceItem.firstChild.textContent.trim();
+            const index = services.indexOf(serviceText);
+            if (index !== -1) {
+                services.splice(index, 1);
+                updateServicesList();
+            }
+        }
+
+        function addCompany() {
+            const companyInput = document.getElementById('companyInput');
+            const company = companyInput.value;
+            const companyService = prompt("Ingrese el servicio ofrecido por la empresa:");
+            if (company && companyService) {
+                companies.push({ name: company, service: companyService });
+                updateCompaniesList();
+                companyInput.value = '';
+            } else {
+                alert('Por favor, ingrese una empresa y su servicio.');
+            }
+        }
+
+        function updateCompaniesList() {
+            const companyList = document.getElementById('adminCompaniesList');
+            companyList.innerHTML = '';
+            companies.forEach(company => {
+                companyList.innerHTML += `
+                    <li>
+                        ${company.name} (Servicio: ${company.service})
+                        <button class="delete-btn" onclick="deleteCompany(this)">Eliminar</button>
+                    </li>
+                `;
+            });
+        }
+
+        function deleteCompany(button) {
+            const companyItem = button.parentNode;
+            const companyText = companyItem.firstChild.textContent.split(" (Servicio: ")[0].trim();
+            const index = companies.findIndex(c => c.name === companyText);
+            if (index !== -1) {
+                companies.splice(index, 1);
+                updateCompaniesList();
+            }
+        }
+
+        function registerCompany() {
+            const name = document.getElementById('companyName').value;
+            const service = document.getElementById('companyService').value;
+            const details = document.getElementById('companyDetails').value;
+
+            if (name && service && details) {
+                companies.push({ name: name, service: service });
+                updateCompaniesList();
+                alert(`Empresa registrada:\nNombre: ${name}\nServicio: ${service}\nDetalles: ${details}`);
+                document.getElementById('companyName').value = '';
+                document.getElementById('companyService').value = '';
+                document.getElementById('companyDetails').value = '';
+            } else {
+                alert('Por favor, complete todos los campos.');
+            }
+        }
+
+        function filterCompanies() {
+            const selectedService = document.getElementById('customerService').value;
+            const filteredCompaniesList = document.getElementById('filteredCompaniesList');
+            filteredCompaniesList.innerHTML = '';
+            if (selectedService) {
+                companies.forEach(company => {
+                    if (company.service === selectedService) {
+                        filteredCompaniesList.innerHTML += `<li>${company.name}</li>`;
+                    }
+                });
+            }
+        }
+
+        function requestService() {
+            const customerName = document.getElementById('customerName').value;
+            const customerService = document.getElementById('customerService').value;
+            const selectedCompany = document.querySelector('#filteredCompaniesList li.selected');
+            
+            if (customerName && customerService && selectedCompany) {
+                const historyList = document.getElementById('serviceHistoryList');
+                const newHistoryItem = document.createElement('li');
+                newHistoryItem.textContent = `Cliente: ${customerName} | Servicio: ${customerService} | Empresa: ${selectedCompany.textContent}`;
+                historyList.appendChild(newHistoryItem);
+
+                alert('Servicio solicitado con éxito.');
+                document.getElementById('customerName').value = '';
+                document.getElementById('customerService').value = '';
+                document.getElementById('filteredCompaniesList').innerHTML = '';
+            } else {
+                alert('Por favor, complete todos los campos y seleccione una empresa.');
+            }
+        }
+
+        // Listener para seleccionar la empresa en la lista filtrada
+        document.addEventListener('click', function(event) {
+            if (event.target.tagName === 'LI' && event.target.parentElement.id === 'filteredCompaniesList') {
+                const listItems = document.querySelectorAll('#filteredCompaniesList li');
+                listItems.forEach(item => item.classList.remove('selected'));
+                event.target.classList.add('selected');
+            }
+        });
+
+        // Inicializar la lista de servicios
+        updateServicesList();
+    </script>
+</body>
+</html>
+
+
